@@ -134,12 +134,13 @@ class BartAttention(nn.Module):
         dropout: float = 0.0,
         is_decoder: bool = False,
         bias: bool = True,
-        k_in: int = embed_dim,
-        k_out: int = embed_dim,
-        v_in: int = embed_dim,
-        v_out: int = embed_dim,
-        q_in: int = embed_dim,
-        q_out: int = embed_dim,
+        is_cross_attn: bool = False,
+        k_in: int = None,
+        k_out: int = None,
+        v_in: int = None,
+        v_out: int = None,
+        q_in: int = None,
+        q_out: int = None,
     ):
         super().__init__()
         self.embed_dim = embed_dim
@@ -154,6 +155,14 @@ class BartAttention(nn.Module):
             )
         self.scaling = self.head_dim ** -0.5
         self.is_decoder = is_decoder
+
+        if not is_cross_attn:
+            k_in = embed_dim
+            k_out = embed_dim
+            v_in = embed_dim
+            v_out = embed_dim
+            q_in = embed_dim
+            q_out = embed_dim
 
         self.k_proj = nn.Linear(k_in, k_out, bias=bias)
         self.v_proj = nn.Linear(v_in, v_out, bias=bias)
@@ -369,6 +378,7 @@ class BartDecoderLayer(nn.Module):
             v_out=1,
             q_in=1024,
             q_out=1,
+            is_cross_attn=True
         )
         self.encoder_attn_layer_norm = nn.LayerNorm(self.embed_dim)
         self.fc1 = nn.Linear(self.embed_dim, config.decoder_ffn_dim)
