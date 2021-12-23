@@ -134,6 +134,12 @@ class BartAttention(nn.Module):
         dropout: float = 0.0,
         is_decoder: bool = False,
         bias: bool = True,
+        k_in: int = embed_dim,
+        k_out: int = embed_dim,
+        v_in: int = embed_dim,
+        v_out: int = embed_dim,
+        q_in: int = embed_dim,
+        q_out: int = embed_dim,
     ):
         super().__init__()
         self.embed_dim = embed_dim
@@ -149,9 +155,9 @@ class BartAttention(nn.Module):
         self.scaling = self.head_dim ** -0.5
         self.is_decoder = is_decoder
 
-        self.k_proj = nn.Linear(embed_dim, embed_dim, bias=bias)
-        self.v_proj = nn.Linear(embed_dim, embed_dim, bias=bias)
-        self.q_proj = nn.Linear(embed_dim, embed_dim, bias=bias)
+        self.k_proj = nn.Linear(k_in, k_out, bias=bias)
+        self.v_proj = nn.Linear(v_in, v_out, bias=bias)
+        self.q_proj = nn.Linear(q_in, q_out, bias=bias)
         self.out_proj = nn.Linear(embed_dim, embed_dim, bias=bias)
 
     def _shape(self, tensor: torch.Tensor, seq_len: int, bsz: int):
@@ -357,6 +363,12 @@ class BartDecoderLayer(nn.Module):
             config.decoder_attention_heads,
             dropout=config.attention_dropout,
             is_decoder=True,
+            k_in=1,
+            k_out=1,
+            v_in=1,
+            v_out=1,
+            q_in=1024,
+            q_out=1,
         )
         self.encoder_attn_layer_norm = nn.LayerNorm(self.embed_dim)
         self.fc1 = nn.Linear(self.embed_dim, config.decoder_ffn_dim)
