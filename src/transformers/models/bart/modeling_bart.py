@@ -368,8 +368,8 @@ class BartDecoderLayer(nn.Module):
 
         self.self_attn_layer_norm = nn.LayerNorm(self.embed_dim)
         self.encoder_attn = BartAttention(
-            self.embed_dim,
-            config.decoder_attention_heads,
+            embed_dim=1,
+            num_heads=1,
             dropout=config.attention_dropout,
             is_decoder=True,
             k_in=1,
